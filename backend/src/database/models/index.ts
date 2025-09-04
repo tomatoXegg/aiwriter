@@ -8,6 +8,9 @@ export { ConfigurationModel } from './Configuration';
 export { PromptTemplateModel } from './PromptTemplate';
 export { CategoryModel } from './Category';
 export { TagModel } from './Tag';
+export { ContentGenerationModel } from './ContentGeneration';
+export { BatchGenerationModel } from './BatchGeneration';
+export { ContentVersionModel } from './ContentVersion';
 
 // Model registry for easy access
 import Database from '../init';
@@ -31,6 +34,9 @@ export interface Models {
   promptTemplate: PromptTemplateModel;
   category: CategoryModel;
   tag: TagModel;
+  contentGeneration: ContentGenerationModel;
+  batchGeneration: BatchGenerationModel;
+  contentVersion: ContentVersionModel;
 }
 
 export function createModels(database: Database): Models {
@@ -44,5 +50,8 @@ export function createModels(database: Database): Models {
     promptTemplate: new PromptTemplateModel(database),
     category: new CategoryModel(database),
     tag: new TagModel(database),
+    contentGeneration: new ContentGenerationModel(database),
+    batchGeneration: new BatchGenerationModel(database),
+    contentVersion: new ContentVersionModel(database),
   };
 }

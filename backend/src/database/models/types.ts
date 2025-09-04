@@ -326,3 +326,183 @@ export interface TopicQueryOptions extends PaginationOptions {
   filters?: TopicFilterOptions;
   sort?: TopicSortOptions;
 }
+
+// 内容生成相关接口
+export interface ContentStyle {
+  tone: 'formal' | 'casual' | 'professional' | 'creative';
+  length: 'short' | 'medium' | 'long';
+  format: 'article' | 'blog' | 'report' | 'story';
+}
+
+export interface ContentMetadata {
+  wordCount: number;
+  readTime: number;
+  language: string;
+  tags: string[];
+  category: string;
+}
+
+export interface ContentGeneration {
+  id: string;
+  topicId: string;
+  prompt: string;
+  style?: ContentStyle;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  result?: Content;
+  error?: string;
+  progress: number;
+  estimatedTime: number;
+  createdAt: Date;
+  completedAt?: Date;
+}
+
+export interface BatchGeneration {
+  id: string;
+  name: string;
+  topics: string[];
+  prompt: string;
+  style?: ContentStyle;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  results: ContentGeneration[];
+  createdAt: Date;
+  completedAt?: Date;
+}
+
+export interface ContentVersion {
+  id: string;
+  contentId: string;
+  version: number;
+  title: string;
+  body: string;
+  changeLog: string;
+  createdAt: Date;
+  createdBy: string;
+}
+
+export interface ContentOptimization {
+  id: string;
+  contentId: string;
+  type: 'readability' | 'grammar' | 'style' | 'structure';
+  score: number;
+  issues: string[];
+  improvements: string[];
+  suggestions: string[];
+  createdAt: Date;
+}
+
+// 扩展Content接口
+export interface ContentWithStyle extends Content {
+  style?: ContentStyle;
+  metadata?: ContentMetadata;
+  publishedAt?: Date;
+}
+
+// 内容生成请求接口
+export interface GenerateContentRequest {
+  topicId: string;
+  prompt?: string;
+  style?: ContentStyle;
+  accountId?: string;
+}
+
+export interface GenerateCustomContentRequest {
+  title: string;
+  prompt: string;
+  style?: ContentStyle;
+  accountId?: string;
+}
+
+export interface GenerateBatchContentRequest {
+  name: string;
+  topicIds: string[];
+  prompt?: string;
+  style?: ContentStyle;
+  accountId?: string;
+}
+
+export interface CreateContentVersionRequest {
+  title: string;
+  body: string;
+  changeLog: string;
+}
+
+export interface ContentOptimizationRequest {
+  type: 'readability' | 'grammar' | 'style' | 'structure';
+  content: string;
+}
+
+// 内容生成响应接口
+export interface GenerateContentResponse {
+  generationId: string;
+  status: 'pending' | 'processing';
+  estimatedTime: number;
+}
+
+export interface ContentGenerationResult {
+  id: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  result?: ContentWithStyle;
+  error?: string;
+  progress: number;
+  createdAt: Date;
+  completedAt?: Date;
+}
+
+export interface BatchGenerationResult {
+  batchId: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  taskCount: number;
+  completedTasks: number;
+  results: ContentGenerationResult[];
+  createdAt: Date;
+  completedAt?: Date;
+}
+
+export interface ContentOptimizationResult {
+  contentId: string;
+  suggestions: {
+    readability: {
+      score: number;
+      issues: string[];
+      improvements: string[];
+    };
+    grammar: {
+      score: number;
+      issues: string[];
+      corrections: string[];
+    };
+    style: {
+      score: number;
+      suggestions: string[];
+    };
+    structure: {
+      score: number;
+      recommendations: string[];
+    };
+  };
+}
+
+// 内容筛选和查询接口
+export interface ContentFilterOptions {
+  status?: string;
+  accountId?: string;
+  topicId?: string;
+  style?: ContentStyle;
+  dateFrom?: string;
+  dateTo?: string;
+  search?: string;
+  tags?: string[];
+  category?: string;
+  wordCountMin?: number;
+  wordCountMax?: number;
+}
+
+export interface ContentSortOptions {
+  field: 'created_at' | 'updated_at' | 'published_at' | 'word_count' | 'title';
+  order: 'ASC' | 'DESC';
+}
+
+export interface ContentQueryOptions extends PaginationOptions {
+  filters?: ContentFilterOptions;
+  sort?: ContentSortOptions;
+}

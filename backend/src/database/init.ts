@@ -98,9 +98,12 @@ export default class Database {
         account_id TEXT,
         status TEXT DEFAULT 'draft',
         prompt TEXT,
+        style TEXT, -- JSON ContentStyle
+        metadata TEXT, -- JSON ContentMetadata
         word_count INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        published_at DATETIME,
         FOREIGN KEY (topic_id) REFERENCES topics (id) ON DELETE SET NULL,
         FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE
       )`,
@@ -177,6 +180,62 @@ export default class Database {
         evaluated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         evaluated_by TEXT,
         FOREIGN KEY (topic_id) REFERENCES topics (id) ON DELETE CASCADE
+      )`,
+
+      // Content generations table
+      `CREATE TABLE IF NOT EXISTS content_generations (
+        id TEXT PRIMARY KEY,
+        topic_id TEXT NOT NULL,
+        prompt TEXT NOT NULL,
+        style TEXT, -- JSON ContentStyle
+        status TEXT DEFAULT 'pending',
+        result TEXT, -- JSON Content
+        error TEXT,
+        progress INTEGER DEFAULT 0,
+        estimated_time INTEGER,
+        completed_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (topic_id) REFERENCES topics (id) ON DELETE CASCADE
+      )`,
+
+      // Batch generations table
+      `CREATE TABLE IF NOT EXISTS batch_generations (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        topics TEXT, -- JSON array of topic IDs
+        prompt TEXT,
+        style TEXT, -- JSON ContentStyle
+        status TEXT DEFAULT 'pending',
+        results TEXT, -- JSON array of ContentGeneration
+        completed_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`,
+
+      // Content versions table
+      `CREATE TABLE IF NOT EXISTS content_versions (
+        id TEXT PRIMARY KEY,
+        content_id TEXT NOT NULL,
+        version INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        body TEXT NOT NULL,
+        change_log TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_by TEXT,
+        FOREIGN KEY (content_id) REFERENCES contents (id) ON DELETE CASCADE,
+        UNIQUE(content_id, version)
+      )`,
+
+      // Content optimizations table
+      `CREATE TABLE IF NOT EXISTS content_optimizations (
+        id TEXT PRIMARY KEY,
+        content_id TEXT NOT NULL,
+        type TEXT NOT NULL,
+        score REAL DEFAULT 0,
+        issues TEXT, -- JSON array
+        improvements TEXT, -- JSON array
+        suggestions TEXT, -- JSON array
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (content_id) REFERENCES contents (id) ON DELETE CASCADE
       )`,
 
       // Migration tracking table
@@ -261,7 +320,35 @@ export default class Database {
       'CREATE INDEX IF NOT EXISTS idx_topics_relevance_score ON topics(relevance_score)',
       'CREATE INDEX IF NOT EXISTS idx_topics_generation_id ON topics(generation_id)',
       'CREATE INDEX IF NOT EXISTS idx_topics_template_id ON topics(template_id)',
-      'CREATE INDEX IF NOT EXISTS idx_topics_updated_at ON topics(updated_at)'
+      'CREATE INDEX IF NOT EXISTS idx_topics_updated_at ON topics(updated_at)',
+
+      // Content generation indexes
+      'CREATE INDEX IF NOT EXISTS idx_content_generations_topic_id ON content_generations(topic_id)',
+      'CREATE INDEX IF NOT EXISTS idx_content_generations_status ON content_generations(status)',
+      'CREATE INDEX IF NOT EXISTS idx_content_generations_created_at ON content_generations(created_at)',
+      'CREATE INDEX IF NOT EXISTS idx_content_generations_completed_at ON content_generations(completed_at)',
+
+      // Batch generation indexes
+      'CREATE INDEX IF NOT EXISTS idx_batch_generations_status ON batch_generations(status)',
+      'CREATE INDEX IF NOT EXISTS idx_batch_generations_created_at ON batch_generations(created_at)',
+      'CREATE INDEX IF NOT EXISTS idx_batch_generations_completed_at ON batch_generations(completed_at)',
+
+      // Content version indexes
+      'CREATE INDEX IF NOT EXISTS idx_content_versions_content_id ON content_versions(content_id)',
+      'CREATE INDEX IF NOT EXISTS idx_content_versions_version ON content_versions(version)',
+      'CREATE INDEX IF NOT EXISTS idx_content_versions_created_at ON content_versions(created_at)',
+      'CREATE INDEX IF NOT EXISTS idx_content_versions_created_by ON content_versions(created_by)',
+
+      // Content optimization indexes
+      'CREATE INDEX IF NOT EXISTS idx_content_optimizations_content_id ON content_optimizations(content_id)',
+      'CREATE INDEX IF NOT EXISTS idx_content_optimizations_type ON content_optimizations(type)',
+      'CREATE INDEX IF NOT EXISTS idx_content_optimizations_score ON content_optimizations(score)',
+      'CREATE INDEX IF NOT EXISTS idx_content_optimizations_created_at ON content_optimizations(created_at)',
+
+      // Extended content indexes
+      'CREATE INDEX IF NOT EXISTS idx_contents_style ON contents(style)',
+      'CREATE INDEX IF NOT EXISTS idx_contents_metadata ON contents(metadata)',
+      'CREATE INDEX IF NOT EXISTS idx_contents_published_at ON contents(published_at)'
     ];
 
     for (const index of indexes) {

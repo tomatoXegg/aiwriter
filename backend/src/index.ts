@@ -20,15 +20,23 @@ import createMaterialsRouter from './routes/materials';
 import geminiRouter from './routes/gemini';
 import topicsRouter from './routes/topics';
 import templatesRouter from './routes/templates';
+import { createContentRouter } from './routes/content';
 
 // Import database configuration
 import databaseConfig from './config/database';
 import { createModels } from './database/models';
 import { FileUploadService } from './services';
+import { ContentGenerationService } from './services/contentGenerationService';
+import { BatchContentGenerationService } from './services/batchContentGenerationService';
+import { ContentOptimizationService } from './services/contentOptimizationService';
+import geminiService from './services/geminiService';
 
 // Initialize models and services
 const models = createModels(databaseConfig.getDatabase());
 const fileUploadService = new FileUploadService();
+const contentGenerationService = new ContentGenerationService(models, geminiService);
+const batchGenerationService = new BatchContentGenerationService(models, contentGenerationService);
+const optimizationService = new ContentOptimizationService(models, geminiService);
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -88,6 +96,7 @@ app.get('/api', (req, res) => {
       gemini: '/api/gemini',
       topics: '/api/topics',
       templates: '/api/templates',
+      content: '/api/content',
       health: '/health',
       docs: '/api'
     },
@@ -103,6 +112,10 @@ app.get('/api', (req, res) => {
       'Topic management and evaluation',
       'Prompt template system',
       'Topic analytics and recommendations',
+      'Batch content generation',
+      'Content version management',
+      'Content optimization and analysis',
+      'Style and length control',
       'RESTful API'
     ]
   });
@@ -116,6 +129,7 @@ app.use('/api/ai', authenticate, aiRouter);
 app.use('/api/gemini', authenticate, geminiRouter);
 app.use('/api/topics', authenticate, topicsRouter);
 app.use('/api/templates', authenticate, templatesRouter);
+app.use('/api/content', authenticate, createContentRouter(models, contentGenerationService, batchGenerationService, optimizationService));
 
 // Error handling middleware
 app.use(errorLogger);
