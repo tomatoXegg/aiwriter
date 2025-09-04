@@ -1,0 +1,175 @@
+{
+  "name": "Development Data",
+  "description": "Sample data for development and testing",
+  "version": "2025-09-04",
+  "data": {
+    "configurations": [
+      {
+        "key": "ai_model",
+        "value": "gemini-pro",
+        "type": "string",
+        "description": "Default AI model"
+      },
+      {
+        "key": "max_tokens",
+        "value": 2048,
+        "type": "integer",
+        "description": "Maximum tokens for AI generation"
+      },
+      {
+        "key": "temperature",
+        "value": 0.7,
+        "type": "float",
+        "description": "AI generation temperature"
+      },
+      {
+        "key": "default_word_count",
+        "value": 1500,
+        "type": "integer",
+        "description": "Default article word count"
+      },
+      {
+        "key": "auto_save",
+        "value": true,
+        "type": "boolean",
+        "description": "Enable auto-save feature"
+      },
+      {
+        "key": "auto_review",
+        "value": false,
+        "type": "boolean",
+        "description": "Enable auto-review feature"
+      }
+    ],
+    "promptTemplates": [
+      {
+        "name": "默认选题生成",
+        "type": "topic",
+        "template": "基于以下素材，为我生成5个适合公众号文章的选题建议。每个选题应该包含标题和简要描述。\n\n素材：{material}",
+        "is_default": true
+      },
+      {
+        "name": "默认内容生成",
+        "type": "content",
+        "template": "请根据以下选题写一篇完整的公众号文章。文章要求结构清晰，内容丰富，语言流畅。\n\n选题：{topic}\n\n要求：\n1. 字数约{wordCount}字\n2. 风格：{style}\n3. 包含吸引人的标题和完整的正文",
+        "is_default": true
+      },
+      {
+        "name": "默认内容审查",
+        "type": "review",
+        "template": "请对以下文章进行质量审查，重点关注：\n1. 语法和拼写错误\n2. 逻辑结构是否清晰\n3. 内容是否原创\n4. 是否符合公众号文章标准\n\n文章内容：{content}",
+        "is_default": true
+      }
+    ],
+    "accounts": [
+      {
+        "name": "技术前沿",
+        "description": "专注于分享最新技术动态和深度技术分析",
+        "platform": "wechat"
+      },
+      {
+        "name": "生活美学",
+        "description": "分享生活美学、设计灵感和品质生活",
+        "platform": "wechat"
+      },
+      {
+        "name": "商业洞察",
+        "description": "深度商业分析和创业经验分享",
+        "platform": "wechat"
+      }
+    ],
+    "materials": [
+      {
+        "title": "人工智能最新发展趋势",
+        "content": "2024年，人工智能技术发展迅猛，大语言模型在各个领域都有重要突破。从GPT-4到Claude，从Gemini到国内的各种模型，AI正在改变我们的工作和生活方式。本文将深入分析当前AI技术的发展趋势，包括多模态能力、推理能力提升、以及在各行业的应用情况。",
+        "tags": ["AI", "技术", "趋势", "人工智能"],
+        "type": "text",
+        "account_id": "account-001"
+      },
+      {
+        "title": "极简主义生活理念",
+        "content": "极简主义不仅仅是一种生活方式，更是一种生活哲学。它强调减少不必要的物品和活动，专注于真正重要的事情。极简主义可以帮助我们减轻压力，提高效率，找到内心的平静。本文将探讨极简主义的核心原则，以及如何在现代生活中实践极简理念。",
+        "tags": ["生活", "极简主义", "哲学", "生活方式"],
+        "type": "text",
+        "account_id": "account-002"
+      },
+      {
+        "title": "初创企业融资策略",
+        "content": "融资是初创企业发展的重要环节。从种子轮到A轮、B轮，每个阶段都有不同的融资策略和注意事项。本文将详细介绍初创企业融资的各个阶段，包括如何准备商业计划书、如何选择合适的投资人、以及融资过程中的常见陷阱和应对策略。",
+        "tags": ["创业", "融资", "商业", "投资"],
+        "type": "text",
+        "account_id": "account-003"
+      }
+    ],
+    "topics": [
+      {
+        "title": "AI大模型的技术架构分析",
+        "description": "深入分析主流AI大模型的技术架构和设计理念",
+        "material_id": "material-001",
+        "prompt": "基于AI发展趋势素材，生成一个关于AI大模型技术架构的深度分析选题"
+      },
+      {
+        "title": "极简主义在现代都市生活中的实践",
+        "description": "探讨如何在繁忙的都市生活中实践极简主义理念",
+        "material_id": "material-002",
+        "prompt": "基于极简主义素材，生成一个关于现代都市生活中实践极简主义的选题"
+      },
+      {
+        "title": "初创企业A轮融资准备指南",
+        "description": "为初创企业提供A轮融资的详细准备指南",
+        "material_id": "material-003",
+        "prompt": "基于融资策略素材，生成一个关于A轮融资准备的实用指南选题"
+      }
+    ],
+    "contents": [
+      {
+        "title": "AI大模型技术架构深度解析",
+        "body": "# AI大模型技术架构深度解析\n\n## 引言\n\n随着ChatGPT的横空出世，人工智能大模型成为了科技领域的热门话题。从GPT-4到Claude，从Gemini到国内的各种模型，AI大模型正在以前所未有的速度发展。本文将深入分析主流AI大模型的技术架构，帮助读者理解这些强大模型背后的技术原理。\n\n## Transformer架构基础\n\n### 自注意力机制\n\nTransformer架构的核心是自注意力机制，它允许模型在处理序列数据时，能够关注序列中的不同位置。这种机制使得模型能够理解长距离依赖关系，这是传统RNN和LSTM难以做到的。\n\n### 多头注意力\n\n多头注意力机制将注意力机制分成多个\"头\"，每个头学习不同的表示模式。这种设计使得模型能够同时关注不同位置和不同表示子空间的信息。\n\n## 主流大模型架构分析\n\n### GPT系列架构\n\nGPT（Generative Pre-trained Transformer）系列采用了解码器-only的架构。这种架构特别适合生成任务，因为它能够利用上下文信息来预测下一个token。\n\n### Claude架构特点\n\nClaude采用了 constitutional AI的概念，在训练过程中融入了人类价值观和安全性考虑。其架构在Transformer基础上进行了多项优化，特别是在安全性和可控性方面。\n\n### Gemini的多模态能力\n\nGemini作为Google的最新模型，原生支持多模态输入输出。它能够同时处理文本、图像、音频等多种类型的数据，这代表了AI发展的重要方向。\n\n## 技术发展趋势\n\n### 模型规模与效率的平衡\n\n随着模型规模的增长，计算成本和推理速度成为重要考量。未来的发展趋势是在保持模型性能的同时，提高效率。\n\n### 多模态融合\n\n未来的AI系统将能够无缝处理和生成多种模态的数据，这将大大扩展AI的应用场景。\n\n### 推理能力增强\n\n提升模型的逻辑推理和复杂问题解决能力是当前研究的重要方向。\n\n## 结论\n\nAI大模型的技术架构正在快速发展，从基础的Transformer到各种优化和创新，这些技术进步正在推动AI向更强大、更安全、更高效的方向发展。理解这些技术架构对于把握AI发展趋势至关重要。",
+        "topic_id": "topic-001",
+        "account_id": "account-001",
+        "prompt": "请根据AI大模型技术架构选题，写一篇深度技术分析文章"
+      },
+      {
+        "title": "都市极简主义生活实践指南",
+        "body": "# 都市极简主义生活实践指南\n\n## 什么是极简主义\n\n极简主义不是简单的\"少买东西\"，而是一种有意识地选择更少但更好的物品和活动的生活方式。在快节奏的现代都市生活中，极简主义可以帮助我们减轻压力，提高生活质量。\n\n## 极简主义的核心原则\n\n### 意识消费\n\n每一次购买决定都要经过深思熟虑：\"我真的需要这个吗？\"\"它会为我的生活带来价值吗？\"这种意识消费的态度可以避免不必要的物品积累。\n\n### 质量重于数量\n\n选择少量但高质量的物品，而不是大量廉价品。高质量物品通常更耐用，使用体验更好，长期来看反而更经济。\n\n### 定期整理\n\n建立定期整理的习惯，及时清理不再需要的物品。这不仅包括物理物品，也包括数字文件、社交媒体关注等。\n\n## 实践极简主义的具体方法\n\n### 衣橱极简\n\n建立胶囊衣橱，选择基础色系和多功能的单品。这样不仅减少选择困难，还能提高衣物的利用率。\n\n### 居住空间优化\n\n保持居住空间的整洁和有序。每个物品都有固定的位置，避免物品随意堆积。\n\n### 数字生活简化\n\n- 定期清理手机应用\n- 取消不必要的订阅服务\n- 整理电脑文件和邮件\n- 限制社交媒体使用时间\n\n### 时间管理极简\n\n学会说\"不\"，避免过度承诺。专注于重要的事情，拒绝无效社交和活动。\n\n## 极简主义带来的好处\n\n### 减轻决策疲劳\n\n减少物品和选择可以大大减轻日常决策的压力，让大脑资源用于更重要的事情。\n\n### 提高专注力\n\n整洁的环境和简化的生活有助于提高专注力和工作效率。\n\n### 财务健康\n\n减少不必要的消费可以改善财务状况，为更重要的事情储蓄。\n\n### 环境友好\n\n减少消费意味着减少资源浪费，对环境更加友好。\n\n## 结语\n\n极简主义不是苦行僧式的生活，而是有意识地选择真正重要的事物。在现代都市生活中，适度的极简主义可以帮助我们找到平衡，提高生活质量。从小处开始，逐步实践，你会发现生活变得更加轻松和充实。",
+        "topic_id": "topic-002",
+        "account_id": "account-002",
+        "prompt": "请根据极简主义选题，写一篇实用的生活指南文章"
+      }
+    ],
+    "reviews": [
+      {
+        "content_id": "content-001",
+        "quality_score": 8.5,
+        "originality_score": 9.0,
+        "suggestions": [
+          {
+            "type": "structure",
+            "description": "文章结构清晰，但可以增加更多实际案例",
+            "severity": "low",
+            "suggestion": "在每个技术点后面增加具体的应用案例"
+          },
+          {
+            "type": "content",
+            "description": "部分技术描述较为复杂，普通读者可能难以理解",
+            "severity": "medium",
+            "suggestion": "增加更通俗的解释和类比"
+          }
+        ]
+      },
+      {
+        "content_id": "content-002",
+        "quality_score": 9.2,
+        "originality_score": 8.8,
+        "suggestions": [
+          {
+            "type": "style",
+            "description": "文章风格亲切自然，很符合目标读者",
+            "severity": "low",
+            "suggestion": "保持当前风格"
+          }
+        ]
+      }
+    ]
+  }
+}
