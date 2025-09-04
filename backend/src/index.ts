@@ -18,6 +18,8 @@ import reviewsRouter from './routes/reviews';
 import aiRouter from './routes/ai';
 import createMaterialsRouter from './routes/materials';
 import geminiRouter from './routes/gemini';
+import topicsRouter from './routes/topics';
+import templatesRouter from './routes/templates';
 
 // Import database configuration
 import databaseConfig from './config/database';
@@ -84,6 +86,8 @@ app.get('/api', (req, res) => {
       reviews: '/api/reviews',
       ai: '/api/ai',
       gemini: '/api/gemini',
+      topics: '/api/topics',
+      templates: '/api/templates',
       health: '/health',
       docs: '/api'
     },
@@ -96,6 +100,9 @@ app.get('/api', (req, res) => {
       'AI-powered content creation',
       'Content quality review',
       'Google Gemini integration',
+      'Topic management and evaluation',
+      'Prompt template system',
+      'Topic analytics and recommendations',
       'RESTful API'
     ]
   });
@@ -107,6 +114,8 @@ app.use('/api/materials', authenticate, createMaterialsRouter(models, fileUpload
 app.use('/api/reviews', authenticate, reviewsRouter);
 app.use('/api/ai', authenticate, aiRouter);
 app.use('/api/gemini', authenticate, geminiRouter);
+app.use('/api/topics', authenticate, topicsRouter);
+app.use('/api/templates', authenticate, templatesRouter);
 
 // Error handling middleware
 app.use(errorLogger);
