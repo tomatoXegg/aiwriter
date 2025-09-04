@@ -46,8 +46,24 @@ export interface Topic extends BaseModel {
   description?: string;
   material_id?: string;
   prompt?: string;
-  status: 'pending' | 'approved' | 'rejected' | 'in_progress';
+  status: 'pending' | 'selected' | 'discarded' | 'in_progress' | 'completed';
   score: number;
+  category?: string;
+  tags?: string[];
+  keywords?: string[];
+  target_audience?: string;
+  estimated_read_time?: number;
+  difficulty_level?: 'beginner' | 'intermediate' | 'advanced';
+  quality_score?: number;
+  creativity_score?: number;
+  feasibility_score?: number;
+  relevance_score?: number;
+  ai_response?: string;
+  generation_id?: string;
+  template_id?: string;
+  selected_at?: string;
+  discarded_at?: string;
+  updated_at?: string;
 }
 
 export interface Content extends BaseModel, Timestamps {
@@ -85,9 +101,16 @@ export interface Configuration extends BaseModel, Timestamps {
 
 export interface PromptTemplate extends BaseModel {
   name: string;
+  description?: string;
   type: 'topic' | 'content' | 'review';
   template: string;
+  category?: string;
+  variables?: string[];
   is_default: boolean;
+  is_public?: boolean;
+  usage_count?: number;
+  created_by?: string;
+  updated_at?: string;
 }
 
 export interface SchemaMigration extends BaseModel {
@@ -186,6 +209,12 @@ export interface CreateTopicDto {
   description?: string;
   material_id?: string;
   prompt?: string;
+  category?: string;
+  tags?: string[];
+  keywords?: string[];
+  target_audience?: string;
+  estimated_read_time?: number;
+  difficulty_level?: 'beginner' | 'intermediate' | 'advanced';
 }
 
 export interface CreateContentDto {
@@ -212,7 +241,88 @@ export interface CreateConfigurationDto {
 
 export interface CreatePromptTemplateDto {
   name: string;
+  description?: string;
   type: 'topic' | 'content' | 'review';
   template: string;
+  category?: string;
+  variables?: string[];
   is_default?: boolean;
+  is_public?: boolean;
+  created_by?: string;
+}
+
+// 选题生成相关接口
+export interface TopicGeneration extends BaseModel {
+  material_id: string;
+  template_id?: string;
+  prompt: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  result?: Topic[];
+  error?: string;
+  estimated_time?: number;
+  progress?: number;
+  completed_at?: string;
+  created_by?: string;
+}
+
+export interface CreateTopicGenerationDto {
+  material_id: string;
+  template_id?: string;
+  prompt?: string;
+  count?: number;
+  category?: string;
+  style?: string;
+  target_audience?: string;
+  difficulty_level?: 'beginner' | 'intermediate' | 'advanced';
+}
+
+export interface TopicEvaluation {
+  id: string;
+  topic_id: string;
+  quality_score: number;
+  creativity_score: number;
+  feasibility_score: number;
+  relevance_score: number;
+  overall_score: number;
+  feedback?: string;
+  suggestions?: string[];
+  evaluated_at: string;
+  evaluated_by?: string;
+}
+
+export interface CreateTopicEvaluationDto {
+  topic_id: string;
+  quality_score?: number;
+  creativity_score?: number;
+  feasibility_score?: number;
+  relevance_score?: number;
+  feedback?: string;
+  suggestions?: string[];
+}
+
+// 选题筛选和查询接口
+export interface TopicFilterOptions {
+  status?: string;
+  category?: string;
+  material_id?: string;
+  template_id?: string;
+  min_score?: number;
+  max_score?: number;
+  difficulty_level?: string;
+  target_audience?: string;
+  tags?: string[];
+  keywords?: string[];
+  date_from?: string;
+  date_to?: string;
+  search?: string;
+}
+
+export interface TopicSortOptions {
+  field: 'created_at' | 'updated_at' | 'score' | 'quality_score' | 'creativity_score' | 'feability_score' | 'relevance_score';
+  order: 'ASC' | 'DESC';
+}
+
+export interface TopicQueryOptions extends PaginationOptions {
+  filters?: TopicFilterOptions;
+  sort?: TopicSortOptions;
 }

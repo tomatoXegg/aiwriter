@@ -68,8 +68,25 @@ export default class Database {
         prompt TEXT,
         status TEXT DEFAULT 'pending',
         score REAL DEFAULT 0,
+        category TEXT,
+        tags TEXT, -- JSON array
+        keywords TEXT, -- JSON array
+        target_audience TEXT,
+        estimated_read_time INTEGER,
+        difficulty_level TEXT CHECK(difficulty_level IN ('beginner', 'intermediate', 'advanced')),
+        quality_score REAL,
+        creativity_score REAL,
+        feasibility_score REAL,
+        relevance_score REAL,
+        ai_response TEXT,
+        generation_id TEXT,
+        template_id TEXT,
+        selected_at DATETIME,
+        discarded_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (material_id) REFERENCES materials (id) ON DELETE SET NULL
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (material_id) REFERENCES materials (id) ON DELETE SET NULL,
+        FOREIGN KEY (template_id) REFERENCES prompt_templates (id) ON DELETE SET NULL
       )`,
 
       // Content table
@@ -115,10 +132,51 @@ export default class Database {
       `CREATE TABLE IF NOT EXISTS prompt_templates (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
+        description TEXT,
         type TEXT NOT NULL,
         template TEXT NOT NULL,
+        category TEXT,
+        variables TEXT, -- JSON array
         is_default BOOLEAN DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        is_public BOOLEAN DEFAULT 0,
+        usage_count INTEGER DEFAULT 0,
+        created_by TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`,
+
+      // Topic generations table
+      `CREATE TABLE IF NOT EXISTS topic_generations (
+        id TEXT PRIMARY KEY,
+        material_id TEXT NOT NULL,
+        template_id TEXT,
+        prompt TEXT NOT NULL,
+        status TEXT DEFAULT 'pending',
+        result TEXT, -- JSON array of topics
+        error TEXT,
+        estimated_time INTEGER,
+        progress INTEGER DEFAULT 0,
+        completed_at DATETIME,
+        created_by TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (material_id) REFERENCES materials (id) ON DELETE CASCADE,
+        FOREIGN KEY (template_id) REFERENCES prompt_templates (id) ON DELETE SET NULL
+      )`,
+
+      // Topic evaluations table
+      `CREATE TABLE IF NOT EXISTS topic_evaluations (
+        id TEXT PRIMARY KEY,
+        topic_id TEXT NOT NULL,
+        quality_score REAL DEFAULT 0,
+        creativity_score REAL DEFAULT 0,
+        feasibility_score REAL DEFAULT 0,
+        relevance_score REAL DEFAULT 0,
+        overall_score REAL DEFAULT 0,
+        feedback TEXT,
+        suggestions TEXT, -- JSON array
+        evaluated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        evaluated_by TEXT,
+        FOREIGN KEY (topic_id) REFERENCES topics (id) ON DELETE CASCADE
       )`,
 
       // Migration tracking table
@@ -178,7 +236,32 @@ export default class Database {
       
       // Prompt template indexes
       'CREATE INDEX IF NOT EXISTS idx_prompt_templates_type ON prompt_templates(type)',
-      'CREATE INDEX IF NOT EXISTS idx_prompt_templates_is_default ON prompt_templates(is_default)'
+      'CREATE INDEX IF NOT EXISTS idx_prompt_templates_is_default ON prompt_templates(is_default)',
+      'CREATE INDEX IF NOT EXISTS idx_prompt_templates_category ON prompt_templates(category)',
+      'CREATE INDEX IF NOT EXISTS idx_prompt_templates_is_public ON prompt_templates(is_public)',
+      'CREATE INDEX IF NOT EXISTS idx_prompt_templates_usage_count ON prompt_templates(usage_count)',
+      
+      // Topic generation indexes
+      'CREATE INDEX IF NOT EXISTS idx_topic_generations_material_id ON topic_generations(material_id)',
+      'CREATE INDEX IF NOT EXISTS idx_topic_generations_template_id ON topic_generations(template_id)',
+      'CREATE INDEX IF NOT EXISTS idx_topic_generations_status ON topic_generations(status)',
+      'CREATE INDEX IF NOT EXISTS idx_topic_generations_created_at ON topic_generations(created_at)',
+      
+      // Topic evaluation indexes
+      'CREATE INDEX IF NOT EXISTS idx_topic_evaluations_topic_id ON topic_evaluations(topic_id)',
+      'CREATE INDEX IF NOT EXISTS idx_topic_evaluations_overall_score ON topic_evaluations(overall_score)',
+      'CREATE INDEX IF NOT EXISTS idx_topic_evaluations_evaluated_at ON topic_evaluations(evaluated_at)',
+
+      // Extended topic indexes
+      'CREATE INDEX IF NOT EXISTS idx_topics_category ON topics(category)',
+      'CREATE INDEX IF NOT EXISTS idx_topics_difficulty_level ON topics(difficulty_level)',
+      'CREATE INDEX IF NOT EXISTS idx_topics_quality_score ON topics(quality_score)',
+      'CREATE INDEX IF NOT EXISTS idx_topics_creativity_score ON topics(creativity_score)',
+      'CREATE INDEX IF NOT EXISTS idx_topics_feasibility_score ON topics(feasibility_score)',
+      'CREATE INDEX IF NOT EXISTS idx_topics_relevance_score ON topics(relevance_score)',
+      'CREATE INDEX IF NOT EXISTS idx_topics_generation_id ON topics(generation_id)',
+      'CREATE INDEX IF NOT EXISTS idx_topics_template_id ON topics(template_id)',
+      'CREATE INDEX IF NOT EXISTS idx_topics_updated_at ON topics(updated_at)'
     ];
 
     for (const index of indexes) {
@@ -191,23 +274,57 @@ export default class Database {
       {
         id: 'topic-default',
         name: '默认选题生成',
+        description: '基于素材生成公众号文章选题建议',
         type: 'topic',
-        template: '基于以下素材，为我生成5个适合公众号文章的选题建议。每个选题应该包含标题和简要描述。\n\n素材：{material}',
-        is_default: 1
+        template: '基于以下素材，为我生成{count}个适合公众号文章的选题建议。\n\n素材：{material}\n\n要求：\n1. 选题要具有时效性和实用性\n2. 符合{targetAudience}阅读习惯\n3. 避免敏感话题\n4. 突出实用价值\n\n请以JSON格式返回，包含topics数组，每个topic有id、title、description、audience、value、keywords、score等字段。',
+        category: 'general',
+        variables: ['material', 'count', 'targetAudience'],
+        is_default: 1,
+        is_public: 1
+      },
+      {
+        id: 'topic-tech',
+        name: '技术类选题生成',
+        description: '专门生成技术类文章的选题',
+        type: 'topic',
+        template: '基于以下技术素材，为我生成{count}个技术类公众号文章选题。\n\n素材：{material}\n\n难度级别：{difficultyLevel}\n目标读者：{targetAudience}\n\n要求：\n1. 技术准确性和深度\n2. 实用性和可操作性\n3. 前沿性和创新性\n4. 易于理解和应用\n\n请以JSON格式返回技术选题建议。',
+        category: 'technology',
+        variables: ['material', 'count', 'difficultyLevel', 'targetAudience'],
+        is_default: 0,
+        is_public: 1
+      },
+      {
+        id: 'topic-lifestyle',
+        name: '生活方式类选题生成',
+        description: '生成生活方式、健康、美食等选题',
+        type: 'topic',
+        template: '基于以下生活类素材，为我生成{count}个生活方式类公众号文章选题。\n\n素材：{material}\n\n风格：{style}\n目标读者：{targetAudience}\n\n要求：\n1. 贴近生活实际\n2. 实用建议和方法\n3. 积极向上的价值观\n4. 易于实施和坚持\n\n请以JSON格式返回生活方式选题建议。',
+        category: 'lifestyle',
+        variables: ['material', 'count', 'style', 'targetAudience'],
+        is_default: 0,
+        is_public: 1
       },
       {
         id: 'content-default',
         name: '默认内容生成',
+        description: '基于选题生成完整的公众号文章',
         type: 'content',
-        template: '请根据以下选题写一篇完整的公众号文章。文章要求结构清晰，内容丰富，语言流畅。\n\n选题：{topic}\n\n要求：\n1. 字数约{wordCount}字\n2. 风格：{style}\n3. 包含吸引人的标题和完整的正文',
-        is_default: 1
+        template: '请根据以下选题写一篇完整的公众号文章。\n\n选题：{topic}\n\n要求：\n1. 字数约{wordCount}字\n2. 风格：{style}\n3. 目标读者：{targetAudience}\n4. 包含吸引人的标题和完整的正文\n5. 结构清晰，逻辑性强\n6. 语言生动，易于理解',
+        category: 'general',
+        variables: ['topic', 'wordCount', 'style', 'targetAudience'],
+        is_default: 1,
+        is_public: 1
       },
       {
         id: 'review-default',
         name: '默认内容审查',
+        description: '全面审查文章质量和合规性',
         type: 'review',
-        template: '请对以下文章进行质量审查，重点关注：\n1. 语法和拼写错误\n2. 逻辑结构是否清晰\n3. 内容是否原创\n4. 是否符合公众号文章标准\n\n文章内容：{content}',
-        is_default: 1
+        template: '请对以下公众号文章进行全面质量审查。\n\n文章内容：{content}\n\n审查维度：\n1. 内容质量 - 信息准确性、逻辑性、深度\n2. 写作水平 - 语言表达、结构组织、流畅度\n3. 原创性 - 内容独特性、抄袭风险\n4. 可读性 - 段落长度、语言亲和力、emoji使用\n5. 传播价值 - 标题吸引力、分享价值、实用性\n\n请提供具体的改进建议和优化方向。',
+        category: 'general',
+        variables: ['content'],
+        is_default: 1,
+        is_public: 1
       }
     ];
 
@@ -219,9 +336,20 @@ export default class Database {
 
       if (!exists) {
         await this.run(
-          `INSERT INTO prompt_templates (id, name, type, template, is_default) 
-           VALUES (?, ?, ?, ?, ?)`,
-          [template.id, template.name, template.type, template.template, template.is_default]
+          `INSERT INTO prompt_templates (id, name, description, type, template, category, variables, is_default, is_public, created_by) 
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            template.id,
+            template.name,
+            template.description,
+            template.type,
+            template.template,
+            template.category,
+            JSON.stringify(template.variables || []),
+            template.is_default,
+            template.is_public,
+            'system'
+          ]
         );
       }
     }
