@@ -1,6 +1,10 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { message } from 'antd';
-import type { Account, Material, Topic, Content, Review, ApiResponse, PaginatedResponse } from '../types';
+import type { 
+  Account, Material, Topic, Content, Review, ApiResponse, PaginatedResponse,
+  AccountStats, AccountsStats, AccountActivity, AccountTrends,
+  CreateAccountDto, UpdateAccountDto, BulkStatusUpdateDto, AccountFilters
+} from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -85,20 +89,60 @@ class ApiClient {
   }
 
   // Account APIs
-  async getAccounts(params?: any): Promise<PaginatedResponse<Account>> {
-    return this.get<PaginatedResponse<Account>>('/accounts', { params });
+  async getAccounts(params?: AccountFilters): Promise<any> {
+    return this.get<any>('/accounts', { params });
   }
 
-  async createAccount(account: Omit<Account, 'id' | 'createdAt' | 'updatedAt' | 'contentCount'>): Promise<ApiResponse<Account>> {
+  async getAccountById(id: string): Promise<ApiResponse<Account>> {
+    return this.get<ApiResponse<Account>>(`/accounts/${id}`);
+  }
+
+  async createAccount(account: CreateAccountDto): Promise<ApiResponse<Account>> {
     return this.post<ApiResponse<Account>>('/accounts', account);
   }
 
-  async updateAccount(id: string, updates: Partial<Account>): Promise<ApiResponse<Account>> {
+  async updateAccount(id: string, updates: UpdateAccountDto): Promise<ApiResponse<Account>> {
     return this.put<ApiResponse<Account>>(`/accounts/${id}`, updates);
   }
 
   async deleteAccount(id: string): Promise<ApiResponse<void>> {
     return this.delete<ApiResponse<void>>(`/accounts/${id}`);
+  }
+
+  // Account Status Management
+  async activateAccount(id: string): Promise<ApiResponse<Account>> {
+    return this.post<ApiResponse<Account>>(`/accounts/${id}/activate`, {});
+  }
+
+  async deactivateAccount(id: string): Promise<ApiResponse<Account>> {
+    return this.post<ApiResponse<Account>>(`/accounts/${id}/deactivate`, {});
+  }
+
+  async getAccountStatus(id: string): Promise<ApiResponse<any>> {
+    return this.get<ApiResponse<any>>(`/accounts/${id}/status`);
+  }
+
+  async bulkUpdateStatus(data: BulkStatusUpdateDto): Promise<ApiResponse<any>> {
+    return this.put<ApiResponse<any>>('/accounts/status/bulk', data);
+  }
+
+  // Account Statistics
+  async getAccountStats(id: string): Promise<ApiResponse<AccountStats>> {
+    return this.get<ApiResponse<AccountStats>>(`/accounts/${id}/stats`);
+  }
+
+  async getAllAccountsStats(): Promise<ApiResponse<AccountsStats>> {
+    return this.get<ApiResponse<AccountsStats>>('/accounts/stats/overview');
+  }
+
+  async getAccountsActivity(): Promise<ApiResponse<AccountActivity>> {
+    return this.get<ApiResponse<AccountActivity>>('/accounts/activity');
+  }
+
+  async getAccountsTrends(days?: number): Promise<ApiResponse<AccountTrends>> {
+    return this.get<ApiResponse<AccountTrends>>('/accounts/trends', { 
+      params: { days: days || 30 } 
+    });
   }
 
   // Material APIs

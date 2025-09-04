@@ -1,3 +1,5 @@
+import type { Account, AccountFilters, AccountsStats, AccountActivity } from '../types';
+
 export interface AppState {
   app: {
     loading: boolean;
@@ -7,10 +9,13 @@ export interface AppState {
 }
 
 export interface AccountState {
-  accounts: any[];
-  currentAccount: any | null;
+  accounts: Account[];
+  currentAccount: Account | null;
   loading: boolean;
   error: string | null;
+  filters: AccountFilters;
+  stats: AccountsStats | null;
+  activity: AccountActivity | null;
 }
 
 export interface MaterialState {

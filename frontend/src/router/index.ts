@@ -3,7 +3,11 @@ import { createBrowserRouter } from 'react-router-dom';
 const router = createBrowserRouter([
   {
     path: "/",
-    lazy: () => import("../pages/dashboard/Dashboard"),
+    lazy: () => import("../pages/auth/Login"),
+  },
+  {
+    path: "/login",
+    lazy: () => import("../pages/auth/Login"),
   },
   {
     path: "/dashboard",

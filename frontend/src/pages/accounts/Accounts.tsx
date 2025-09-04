@@ -1,69 +1,78 @@
-import React from 'react';
-import { Card, Table, Button, Space } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Tabs, Card, Button, Space } from 'antd';
+import { TableOutlined, BarChartOutlined, ReloadOutlined } from '@ant-design/icons';
+import AccountList from '../../components/accounts/AccountList';
+import AccountStats from '../../components/accounts/AccountStats';
+import { useAccountStore } from '../../store';
+
+const { TabPane } = Tabs;
 
 const Accounts: React.FC = () => {
-  const columns = [
+  const [activeTab, setActiveTab] = useState('list');
+  const { fetchAccounts, fetchStats, fetchActivity, loading } = useAccountStore();
+
+  const handleTabChange = (key: string) => {
+    setActiveTab(key);
+    // 根据标签页刷新相应数据
+    if (key === 'list') {
+      fetchAccounts();
+    } else if (key === 'stats') {
+      fetchStats();
+      fetchActivity();
+    }
+  };
+
+  const handleRefresh = () => {
+    if (activeTab === 'list') {
+      fetchAccounts();
+    } else if (activeTab === 'stats') {
+      fetchStats();
+      fetchActivity();
+    }
+  };
+
+  const tabItems = [
     {
-      title: '平台',
-      dataIndex: 'platform',
-      key: 'platform',
-    },
-    {
-      title: '账号名',
-      dataIndex: 'username',
-      key: 'username',
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-    },
-    {
-      title: '操作',
-      key: 'action',
-      render: () => (
+      key: 'list',
+      label: (
         <Space>
-          <Button icon={<EditOutlined />} size="small">
-            编辑
-          </Button>
-          <Button icon={<DeleteOutlined />} size="small" danger>
-            删除
-          </Button>
+          <TableOutlined />
+          账号列表
         </Space>
       ),
+      children: <AccountList />,
+    },
+    {
+      key: 'stats',
+      label: (
+        <Space>
+          <BarChartOutlined />
+          统计分析
+        </Space>
+      ),
+      children: <AccountStats />,
     },
   ];
 
-  const data = [];
-
   return (
     <div style={{ padding: 24 }}>
-      <h1 style={{ marginBottom: 24 }}>账号管理</h1>
       <Card
-        title="账号列表"
+        title="账号管理"
         extra={
-          <Button type="primary" icon={<PlusOutlined />}>
-            新增账号
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={handleRefresh}
+            loading={loading}
+          >
+            刷新
           </Button>
         }
       >
-        <Table
-          columns={columns}
-          dataSource={data}
-          rowKey="id"
-          pagination={{
-            total: 0,
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条/共 ${total} 条`,
-          }}
+        <Tabs
+          activeKey={activeTab}
+          onChange={handleTabChange}
+          items={tabItems}
+          type="card"
         />
       </Card>
     </div>

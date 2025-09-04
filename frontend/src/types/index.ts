@@ -1,12 +1,12 @@
 export interface Account {
   id: string;
   name: string;
-  description: string;
-  platform: 'wechat';
-  status: 'active' | 'inactive';
-  createdAt: Date;
-  updatedAt: Date;
-  contentCount: number;
+  description?: string;
+  platform: 'wechat' | 'weibo' | 'zhihu' | 'other';
+  status: 'active' | 'inactive' | 'suspended';
+  content_count: number;
+  created_at: string;
+  updated_at?: string;
 }
 
 export interface Material {
@@ -77,5 +77,74 @@ export interface PaginatedResponse<T> {
 export interface ApiError {
   message: string;
   code: string;
-  details?: any;
+  details?: unknown;
+}
+
+export interface AccountStats {
+  accountId: string;
+  accountName: string;
+  totalContent: number;
+  platform: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface AccountsStats {
+  totalAccounts: number;
+  activeAccounts: number;
+  inactiveAccounts: number;
+  suspendedAccounts: number;
+  totalContent: number;
+  platformDistribution: Record<string, number>;
+}
+
+export interface AccountActivity {
+  activeAccounts: number;
+  inactiveAccounts: number;
+  recentActivity: Account[];
+  inactiveList: Account[];
+}
+
+export interface AccountTrends {
+  trends: AccountTrend[];
+  period: {
+    start: string;
+    end: string;
+    days: number;
+  };
+}
+
+export interface AccountTrend {
+  date: string;
+  count: number;
+  active_count: number;
+  wechat_count: number;
+  weibo_count: number;
+  zhihu_count: number;
+}
+
+export interface CreateAccountDto {
+  name: string;
+  description?: string;
+  platform?: 'wechat' | 'weibo' | 'zhihu' | 'other';
+}
+
+export interface UpdateAccountDto {
+  name?: string;
+  description?: string;
+  platform?: 'wechat' | 'weibo' | 'zhihu' | 'other';
+  status?: 'active' | 'inactive' | 'suspended';
+}
+
+export interface BulkStatusUpdateDto {
+  accountIds: string[];
+  status: 'active' | 'inactive' | 'suspended';
+}
+
+export interface AccountFilters {
+  status?: string;
+  platform?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
 }
