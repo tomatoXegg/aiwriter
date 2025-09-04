@@ -1,22 +1,24 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const path = require('path');
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import dotenv from 'dotenv';
+import path from 'path';
 
 // Load environment variables
 dotenv.config();
 
 // Import routes and services
-const accountsRouter = require('./routes/accounts');
-const materialsRouter = require('./routes/materials');
-const topicsRouter = require('./routes/topics');
-const contentRouter = require('./routes/content');
-const databaseConfig = require('./config/database');
+import accountsRouter from './routes/accounts';
+import materialsRouter from './routes/materials';
+import topicsRouter from './routes/topics';
+import contentRouter from './routes/content';
+import databaseConfig from './config/database';
 
 const app = express();
 const PORT = process.env.PORT || 8000;
 
 // Middleware
+app.use(helmet());
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:3000'
 }));
@@ -107,4 +109,4 @@ process.on('SIGINT', async () => {
 
 startServer();
 
-module.exports = app;
+export default app;
