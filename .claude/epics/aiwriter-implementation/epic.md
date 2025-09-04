@@ -4,6 +4,8 @@ description: aiwriter多账号AI内容创作平台实施计划
 status: planning
 created: 2025-09-04T01:07:36Z
 epic_of: aiwriter
+github: https://github.com/tomatoXegg/aiwriter/issues/1
+updated: 2025-09-04T01:56:57Z
 ---
 
 # Epic: aiwriter Implementation
