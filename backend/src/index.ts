@@ -17,6 +17,7 @@ import accountsRouter from './routes/accounts';
 import reviewsRouter from './routes/reviews';
 import aiRouter from './routes/ai';
 import createMaterialsRouter from './routes/materials';
+import geminiRouter from './routes/gemini';
 
 // Import database configuration
 import databaseConfig from './config/database';
@@ -82,6 +83,7 @@ app.get('/api', (req, res) => {
       materials: '/api/materials',
       reviews: '/api/reviews',
       ai: '/api/ai',
+      gemini: '/api/gemini',
       health: '/health',
       docs: '/api'
     },
@@ -104,6 +106,7 @@ app.use('/api/accounts', optionalAuth, accountsRouter);
 app.use('/api/materials', authenticate, createMaterialsRouter(models, fileUploadService));
 app.use('/api/reviews', authenticate, reviewsRouter);
 app.use('/api/ai', authenticate, aiRouter);
+app.use('/api/gemini', authenticate, geminiRouter);
 
 // Error handling middleware
 app.use(errorLogger);
