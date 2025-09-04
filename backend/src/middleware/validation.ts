@@ -97,9 +97,56 @@ export const validate = (schema: ValidationSchema) => {
 // Common validation schemas
 export const validationSchemas = {
   account: {
-    name: { required: true, type: 'string', min: 1, max: 100 },
-    description: { type: 'string', max: 500 },
-    platform: { type: 'string', min: 1, max: 50 }
+    name: { required: true, type: 'string' as const, min: 1, max: 100 },
+    description: { type: 'string' as const, max: 500 },
+    platform: { 
+      type: 'string' as const, 
+      min: 1, 
+      max: 50,
+      custom: (value: string) => {
+        const validPlatforms = ['wechat', 'weibo', 'zhihu', 'other'];
+        return validPlatforms.includes(value) || 'Platform must be one of: wechat, weibo, zhihu, other';
+      }
+    }
+  },
+
+  accountUpdate: {
+    name: { type: 'string' as const, min: 1, max: 100 },
+    description: { type: 'string' as const, max: 500 },
+    platform: { 
+      type: 'string' as const, 
+      min: 1, 
+      max: 50,
+      custom: (value: string) => {
+        const validPlatforms = ['wechat', 'weibo', 'zhihu', 'other'];
+        return validPlatforms.includes(value) || 'Platform must be one of: wechat, weibo, zhihu, other';
+      }
+    },
+    status: {
+      type: 'string' as const,
+      custom: (value: string) => {
+        const validStatuses = ['active', 'inactive', 'suspended'];
+        return validStatuses.includes(value) || 'Status must be one of: active, inactive, suspended';
+      }
+    }
+  },
+
+  bulkStatusUpdate: {
+    accountIds: { 
+      required: true, 
+      type: 'array' as const,
+      custom: (value: any[]) => {
+        return Array.isArray(value) && value.length > 0 || 'Account IDs must be a non-empty array';
+      }
+    },
+    status: {
+      required: true,
+      type: 'string' as const,
+      custom: (value: string) => {
+        const validStatuses = ['active', 'inactive', 'suspended'];
+        return validStatuses.includes(value) || 'Status must be one of: active, inactive, suspended';
+      }
+    }
   },
   
   material: {
