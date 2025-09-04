@@ -1,0 +1,27 @@
+{
+  "name": "aiwriter-backend",
+  "version": "1.0.0",
+  "description": "AI Writer Backend Service",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["ai", "writer", "backend", "express"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "sqlite3": "^5.1.6",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "@google/generative-ai": "^0.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
