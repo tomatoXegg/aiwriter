@@ -1,16 +1,21 @@
-const Database = require('../database/init');
-const path = require('path');
+import Database from '../database/init';
+
+export interface DatabaseInstance {
+  run: (query: string, params?: any[]) => Promise<{ id: number; changes: number }>;
+  get: (query: string, params?: any[]) => Promise<any>;
+  all: (query: string, params?: any[]) => Promise<any[]>;
+  close: () => Promise<void>;
+}
 
 class DatabaseConfig {
-  constructor() {
-    this.db = null;
-  }
+  private db: DatabaseInstance | null = null;
 
-  async initialize() {
+  async initialize(): Promise<DatabaseInstance> {
     try {
-      this.db = new Database();
-      await this.db.connect();
-      await this.db.initTables();
+      const database = new Database();
+      await database.connect();
+      await database.initTables();
+      this.db = database;
       console.log('✅ Database initialized successfully');
       return this.db;
     } catch (error) {
@@ -19,14 +24,14 @@ class DatabaseConfig {
     }
   }
 
-  getInstance() {
+  getInstance(): DatabaseInstance {
     if (!this.db) {
       throw new Error('Database not initialized. Call initialize() first.');
     }
     return this.db;
   }
 
-  async close() {
+  async close(): Promise<void> {
     if (this.db) {
       await this.db.close();
       this.db = null;
@@ -35,4 +40,4 @@ class DatabaseConfig {
 }
 
 // Export singleton instance
-module.exports = new DatabaseConfig();
+export default new DatabaseConfig();

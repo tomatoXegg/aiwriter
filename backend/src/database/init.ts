@@ -1,12 +1,24 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+import sqlite3 from 'sqlite3';
+import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
-class Database {
+export interface DatabaseRow {
+  [key: string]: any;
+}
+
+export interface QueryResult {
+  id: number;
+  changes: number;
+}
+
+export default class Database {
+  private db: sqlite3.Database | null = null;
+
   constructor() {
     this.db = null;
   }
 
-  connect() {
+  async connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       const dbPath = path.join(__dirname, '../../database/aiwriter.db');
       this.db = new sqlite3.Database(dbPath, (err) => {
@@ -20,7 +32,7 @@ class Database {
     });
   }
 
-  async initTables() {
+  async initTables(): Promise<void> {
     const queries = [
       // Accounts table
       `CREATE TABLE IF NOT EXISTS accounts (
@@ -91,7 +103,7 @@ class Database {
         name TEXT NOT NULL,
         type TEXT NOT NULL,
         template TEXT NOT NULL,
-        is_default BOOLEAN DEFAULT FALSE,
+        is_default BOOLEAN DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`
     ];
@@ -104,28 +116,28 @@ class Database {
     await this.insertDefaultTemplates();
   }
 
-  async insertDefaultTemplates() {
+  async insertDefaultTemplates(): Promise<void> {
     const templates = [
       {
         id: 'topic-default',
         name: '默认选题生成',
         type: 'topic',
         template: '基于以下素材，为我生成5个适合公众号文章的选题建议。每个选题应该包含标题和简要描述。\n\n素材：{material}',
-        is_default: true
+        is_default: 1
       },
       {
         id: 'content-default',
         name: '默认内容生成',
         type: 'content',
         template: '请根据以下选题写一篇完整的公众号文章。文章要求结构清晰，内容丰富，语言流畅。\n\n选题：{topic}\n\n要求：\n1. 字数约{wordCount}字\n2. 风格：{style}\n3. 包含吸引人的标题和完整的正文',
-        is_default: true
+        is_default: 1
       },
       {
         id: 'review-default',
         name: '默认内容审查',
         type: 'review',
         template: '请对以下文章进行质量审查，重点关注：\n1. 语法和拼写错误\n2. 逻辑结构是否清晰\n3. 内容是否原创\n4. 是否符合公众号文章标准\n\n文章内容：{content}',
-        is_default: true
+        is_default: 1
       }
     ];
 
@@ -145,8 +157,13 @@ class Database {
     }
   }
 
-  run(query, params = []) {
+  run(query: string, params: any[] = []): Promise<QueryResult> {
     return new Promise((resolve, reject) => {
+      if (!this.db) {
+        reject(new Error('Database not connected'));
+        return;
+      }
+      
       this.db.run(query, params, function(err) {
         if (err) {
           reject(err);
@@ -157,32 +174,47 @@ class Database {
     });
   }
 
-  get(query, params = []) {
+  get(query: string, params: any[] = []): Promise<DatabaseRow | null> {
     return new Promise((resolve, reject) => {
+      if (!this.db) {
+        reject(new Error('Database not connected'));
+        return;
+      }
+      
       this.db.get(query, params, (err, row) => {
         if (err) {
           reject(err);
         } else {
-          resolve(row);
+          resolve(row || null);
         }
       });
     });
   }
 
-  all(query, params = []) {
+  all(query: string, params: any[] = []): Promise<DatabaseRow[]> {
     return new Promise((resolve, reject) => {
+      if (!this.db) {
+        reject(new Error('Database not connected'));
+        return;
+      }
+      
       this.db.all(query, params, (err, rows) => {
         if (err) {
           reject(err);
         } else {
-          resolve(rows);
+          resolve(rows || []);
         }
       });
     });
   }
 
-  close() {
+  close(): Promise<void> {
     return new Promise((resolve, reject) => {
+      if (!this.db) {
+        resolve();
+        return;
+      }
+      
       this.db.close((err) => {
         if (err) {
           reject(err);
@@ -194,5 +226,3 @@ class Database {
     });
   }
 }
-
-module.exports = Database;

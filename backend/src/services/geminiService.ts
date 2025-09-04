@@ -1,12 +1,55 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-class GeminiService {
+export interface TopicSuggestion {
+  title: string;
+  description: string;
+  audience: string;
+  value: string;
+}
+
+export interface GeneratedContent {
+  title: string;
+  body: string;
+  wordCount: number;
+  generatedAt: string;
+}
+
+export interface ContentReview {
+  overallScore: number;
+  scores: {
+    contentQuality: number;
+    writingLevel: number;
+    originality: number;
+    readability: number;
+    shareValue: number;
+  };
+  suggestions: string[];
+  errors: string[];
+  strengths: string[];
+  status: 'passed' | 'needs_improvement';
+  reviewedAt: string;
+}
+
+export interface GenerateTopicsOptions {
+  customPrompt?: string;
+}
+
+export interface GenerateContentOptions {
+  wordCount?: number;
+  style?: string;
+  customPrompt?: string;
+}
+
+export class GeminiService {
+  private genAI: GoogleGenerativeAI | null = null;
+  private model: any = null;
+
   constructor() {
     this.genAI = null;
     this.model = null;
   }
 
-  initialize() {
+  initialize(): void {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY is required');
@@ -16,7 +59,7 @@ class GeminiService {
     this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
   }
 
-  async generateTopics(material, customPrompt = null) {
+  async generateTopics(material: string, options: GenerateTopicsOptions = {}): Promise<TopicSuggestion[]> {
     try {
       if (!this.model) {
         this.initialize();
@@ -39,7 +82,7 @@ ${material}
 - 避免敏感话题
 - 突出实用价值`;
 
-      const prompt = customPrompt || defaultPrompt;
+      const prompt = options.customPrompt || defaultPrompt;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
@@ -55,17 +98,17 @@ ${material}
       }
     } catch (error) {
       console.error('Error generating topics:', error);
-      throw new Error('Failed to generate topics: ' + error.message);
+      throw new Error(`Failed to generate topics: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
-  async generateContent(topic, options = {}) {
+  async generateContent(topic: { title: string; description?: string }, options: GenerateContentOptions = {}): Promise<GeneratedContent> {
     try {
       if (!this.model) {
         this.initialize();
       }
 
-      const { wordCount = 1000, style = '专业科普', customPrompt = null } = options;
+      const { wordCount = 1000, style = '专业科普', customPrompt } = options;
 
       const defaultPrompt = `请根据以下选题写一篇完整的公众号文章。
 
@@ -103,11 +146,11 @@ ${material}
       };
     } catch (error) {
       console.error('Error generating content:', error);
-      throw new Error('Failed to generate content: ' + error.message);
+      throw new Error(`Failed to generate content: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
-  async reviewContent(content) {
+  async reviewContent(content: string): Promise<ContentReview> {
     try {
       if (!this.model) {
         this.initialize();
@@ -176,15 +219,15 @@ ${content}
       }
     } catch (error) {
       console.error('Error reviewing content:', error);
-      throw new Error('Failed to review content: ' + error.message);
+      throw new Error(`Failed to review content: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   // 辅助方法
-  extractTopicsFromText(text) {
+  private extractTopicsFromText(text: string): TopicSuggestion[] {
     // 简单的文本解析，实际使用时可能需要更复杂的NLP处理
     const lines = text.split('\n').filter(line => line.trim());
-    const topics = [];
+    const topics: TopicSuggestion[] = [];
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
@@ -204,7 +247,7 @@ ${content}
     return topics.slice(0, 5); // 最多返回5个选题
   }
 
-  extractTitle(content) {
+  private extractTitle(content: string): string | null {
     // 尝试从内容中提取标题
     const lines = content.split('\n');
     const firstLine = lines[0]?.trim();
@@ -216,7 +259,7 @@ ${content}
     return null;
   }
 
-  countWords(text) {
+  private countWords(text: string): number {
     // 中文字数统计
     const chineseChars = text.match(/[\u4e00-\u9fff]/g) || [];
     const englishWords = text.match(/[a-zA-Z]+/g) || [];
@@ -224,4 +267,4 @@ ${content}
   }
 }
 
-module.exports = GeminiService;
+export default new GeminiService();
