@@ -57,18 +57,15 @@ aiwriter/
 - Node.js 18+
 - npm 或 yarn
 
-### 安装依赖
-
-#### 前端
+### 快速安装（推荐）
 ```bash
-cd frontend
-npm install
-```
+# 安装所有依赖
+npm run install:all
 
-#### 后端
-```bash
-cd backend
+# 或分别安装
 npm install
+cd frontend && npm install
+cd ../backend && npm install
 ```
 
 ### 配置环境变量
@@ -86,14 +83,23 @@ CORS_ORIGIN=http://localhost:3000
 
 ### 运行项目
 
-#### 启动后端服务
+#### 并发启动（推荐）
 ```bash
-cd backend
-npm start
+# 同时启动前端和后端
+npm run dev
+
+# 或分别启动
+npm run dev:frontend  # 仅启动前端
+npm run dev:backend   # 仅启动后端
 ```
 
-#### 启动前端开发服务器
+#### 传统启动方式
 ```bash
+# 启动后端服务
+cd backend
+npm run dev
+
+# 启动前端开发服务器
 cd frontend
 npm run dev
 ```
@@ -135,10 +141,19 @@ npm run dev
 
 ## 🔧 开发说明
 
+### 开发工具和脚本
+- **代码检查**: `npm run lint` - 运行ESLint检查
+- **代码格式化**: `npm run format` - 使用Prettier格式化代码
+- **构建项目**: `npm run build` - 构建前端和后端
+- **测试**: `npm test` - 运行所有测试
+- **清理**: `npm run clean` - 清理node_modules和构建文件
+- **设置**: `npm run setup` - 一键安装依赖并构建
+
 ### 代码规范
 - 使用 TypeScript 进行类型安全开发
 - 遵循 ESLint 和 Prettier 代码规范
 - 组件和函数使用清晰的命名
+- 提交前运行 `npm run lint` 和 `npm run format:check`
 
 ### 数据库设计
 使用 SQLite 作为本地数据库，包含以下主要表：
