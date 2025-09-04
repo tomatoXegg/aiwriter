@@ -1,0 +1,116 @@
+---
+name: Bug Report
+description: 报告一个 Bug
+title: "[Bug] "
+labels: ["bug", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您花时间报告这个 Bug！请填写以下信息帮助我们更好地理解和解决问题。
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug 描述
+      description: 请简要描述这个 Bug
+      placeholder: 描述您遇到的问题...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: 期望行为
+      description: 您期望系统应该如何工作？
+      placeholder: 描述期望的行为...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: 实际行为
+      description: 系统实际是如何工作的？
+      placeholder: 描述实际发生的情况...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: 复现步骤
+      description: 请提供详细的复现步骤
+      placeholder: |
+        1. 打开...
+        2. 点击...
+        3. 看到...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 严重程度
+      description: 这个 Bug 的严重程度如何？
+      options:
+        - Low (轻微问题，不影响使用)
+        - Medium (影响部分功能)
+        - High (影响主要功能)
+        - Critical (系统无法使用)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: 复现频率
+      description: 这个 Bug 出现的频率如何？
+      options:
+        - Always (每次都出现)
+        - Often (经常出现)
+        - Sometimes (偶尔出现)
+        - Rarely (很少出现)
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境信息
+      description: 请提供您的环境信息
+      placeholder: |
+        - 操作系统: [例如 Windows 10, macOS 12.0, Ubuntu 20.04]
+        - 浏览器: [例如 Chrome 96, Firefox 95, Safari 15]
+        - Node.js 版本: [例如 16.14.0]
+        - 项目版本: [例如 1.0.0]
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 截图
+      description: 如果有相关的截图，请上传
+      placeholder: 拖拽截图到这里或点击上传...
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 额外信息
+      description: 任何其他有用的信息
+      placeholder: 其他相关信息...
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 确认
+      description: 请确认以下事项
+      options:
+        - label: 我已经搜索了现有的 Issue，确认这是一个新的 Bug
+          required: true
+        - label: 我已经尝试了最新的版本，问题依然存在
+          required: true
+        - label: 我已经提供了足够的信息来复现这个 Bug
+          required: true

@@ -1,0 +1,81 @@
+---
+name: Documentation
+description: 文档改进建议
+title: "[Docs] "
+labels: ["documentation", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您对文档改进的贡献！请填写以下信息帮助我们更好地理解您的建议。
+
+  - type: textarea
+    id: doc-description
+    attributes:
+      label: 文档描述
+      description: 请描述您希望改进的文档部分
+      placeholder: 描述需要改进的文档...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: 文档类型
+      description: 这是哪种类型的文档？
+      options:
+        - README.md
+        - API 文档
+        - 开发指南
+        - 部署文档
+        - 代码注释
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-issues
+    attributes:
+      label: 当前问题
+      description: 当前文档存在什么问题？
+      placeholder: 描述当前文档的问题...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-improvements
+    attributes:
+      label: 建议的改进
+      description: 您建议如何改进这个文档？
+      placeholder: 描述您的改进建议...
+    validations:
+      required: true
+
+  - type: textarea
+    id: target-audience
+    attributes:
+      label: 目标受众
+      description: 这个文档主要面向哪些用户？
+      placeholder: 描述目标受众...
+
+  - type: checkboxes
+    id: contribution-type
+    attributes:
+      label: 贡献方式
+      description: 您希望如何贡献？
+      options:
+        - label: 我愿意提交 PR 来改进文档
+        - label: 我只能提供改进建议
+        - label: 我可以帮助审查文档改进
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 确认
+      description: 请确认以下事项
+      options:
+        - label: 我已经阅读了相关的文档
+          required: true
+        - label: 我已经提供了足够的信息来理解这个改进建议
+          required: true

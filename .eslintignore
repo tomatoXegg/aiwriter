@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env*
+
+# Cache
+.cache/
+*.cache
+
+# Coverage
+coverage/
+.nyc_output/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Temporary files
+*.tmp
+*.temp
+
+# Public assets
+public/
+uploads/
+
+# Generated files
+*.min.js
+*.min.css
+
+# Test files
+*.test.js.snap
+*.test.tsx.snap

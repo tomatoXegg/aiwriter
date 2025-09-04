@@ -1,0 +1,257 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    name: ESLint Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm run install:all
+      
+    - name: Run ESLint
+      run: npm run lint
+      
+    - name: Analyze ESLint results
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const path = './eslint-report.json';
+          
+          if (fs.existsSync(path)) {
+            const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+            const errors = report.filter(issue => issue.severity === 2);
+            const warnings = report.filter(issue => issue.severity === 1);
+            
+            core.setFailed(`ESLint found ${errors.length} errors and ${warnings.length} warnings`);
+          }
+
+  format:
+    name: Prettier Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm run install:all
+      
+    - name: Check formatting
+      run: npm run format:check
+      
+    - name: Auto-format if failed
+      if: failure()
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: 'style: auto-format code with Prettier'
+        file_pattern: '**/*.{js,jsx,ts,tsx,json,md}'
+
+  typescript:
+    name: TypeScript Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm run install:all
+      
+    - name: Run TypeScript check
+      run: npx tsc --noEmit
+      
+    - name: Check for any TypeScript errors
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          core.setFailed('TypeScript compilation failed. Please fix the type errors before merging.');
+
+  security:
+    name: Security Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm run install:all
+      
+    - name: Run npm audit
+      run: npm audit --audit-level moderate
+      
+    - name: Check for vulnerabilities
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          core.setFailed('Security vulnerabilities found. Please update dependencies or address security issues.');
+
+  dependencies:
+    name: Dependencies Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm run install:all
+      
+    - name: Check for outdated dependencies
+      run: npx npm-check-updates --error-level 2
+      
+    - name: Generate dependency report
+      run: |
+        npx license-checker --production --onlyAllow 'MIT;ISC;Apache-2.0;BSD-3-Clause' --summary
+        npx depcheck
+
+  performance:
+    name: Performance Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm run install:all
+      
+    - name: Bundle analysis
+      run: |
+        cd frontend
+        npm run build -- --analyze
+        cd ../backend
+        npm run build -- --analyze
+        
+    - name: Check bundle size
+      uses: andresz1/size-limit-action@v1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        skip_step: install
+
+  documentation:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm run install:all
+      
+    - name: Check documentation coverage
+      run: npx jsdoc --configure .jsdoc.json --verbose
+      
+    - name: Validate README links
+      run: npx markdown-link-check ./README.md
+
+  report:
+    name: Generate Quality Report
+    runs-on: ubuntu-latest
+    needs: [lint, format, typescript, security, dependencies, performance, documentation]
+    if: always()
+    
+    steps:
+    - name: Generate quality report
+      run: |
+        echo "# Code Quality Report" > quality-report.md
+        echo "Generated on: $(date)" >> quality-report.md
+        echo "" >> quality-report.md
+        echo "## ESLint" >> quality-report.md
+        echo "- Status: ${{ needs.lint.result }}" >> quality-report.md
+        echo "" >> quality-report.md
+        echo "## Prettier" >> quality-report.md
+        echo "- Status: ${{ needs.format.result }}" >> quality-report.md
+        echo "" >> quality-report.md
+        echo "## TypeScript" >> quality-report.md
+        echo "- Status: ${{ needs.typescript.result }}" >> quality-report.md
+        echo "" >> quality-report.md
+        echo "## Security" >> quality-report.md
+        echo "- Status: ${{ needs.security.result }}" >> quality-report.md
+        echo "" >> quality-report.md
+        echo "## Dependencies" >> quality-report.md
+        echo "- Status: ${{ needs.dependencies.result }}" >> quality-report.md
+        echo "" >> quality-report.md
+        echo "## Performance" >> quality-report.md
+        echo "- Status: ${{ needs.performance.result }}" >> quality-report.md
+        echo "" >> quality-report.md
+        echo "## Documentation" >> quality-report.md
+        echo "- Status: ${{ needs.documentation.result }}" >> quality-report.md
+        
+    - name: Upload quality report
+      uses: actions/upload-artifact@v3
+      with:
+        name: quality-report
+        path: quality-report.md
+        
+    - name: Comment on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('quality-report.md', 'utf8');
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## Code Quality Report\n\n${report}`
+          });

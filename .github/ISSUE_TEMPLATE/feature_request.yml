@@ -1,0 +1,89 @@
+---
+name: Feature Request
+description: 建议一个新功能
+title: "[Feature] "
+labels: ["enhancement", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您的功能建议！请填写以下信息帮助我们更好地理解您的需求。
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: 功能描述
+      description: 请详细描述您建议的功能
+      placeholder: 描述您希望添加的功能...
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: 问题陈述
+      description: 这个功能解决了什么问题？
+      placeholder: 描述当前的问题或痛点...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: 建议的解决方案
+      description: 您建议如何实现这个功能？
+      placeholder: 描述您的解决方案...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 优先级
+      description: 这个功能对您来说有多重要？
+      options:
+        - Low (有了会更好)
+        - Medium (比较需要)
+        - High (非常需要)
+        - Critical (必不可少)
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: 使用场景
+      description: 请描述具体的使用场景
+      placeholder: |
+        场景 1: ...
+        场景 2: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 替代方案
+      description: 您是否考虑过其他解决方案？
+      placeholder: 描述您考虑过的其他方案...
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 额外信息
+      description: 任何其他有用的信息
+      placeholder: 其他相关信息...
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 确认
+      description: 请确认以下事项
+      options:
+        - label: 我已经搜索了现有的 Issue，确认这是一个新的功能建议
+          required: true
+        - label: 我已经提供了足够的信息来理解这个功能需求
+          required: true
+        - label: 我理解这个功能可能需要时间来实现
+          required: true
