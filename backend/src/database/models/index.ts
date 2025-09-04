@@ -6,6 +6,8 @@ export { ContentModel } from './Content';
 export { ReviewModel } from './Review';
 export { ConfigurationModel } from './Configuration';
 export { PromptTemplateModel } from './PromptTemplate';
+export { CategoryModel } from './Category';
+export { TagModel } from './Tag';
 
 // Model registry for easy access
 import Database from '../init';
@@ -16,6 +18,8 @@ import { ContentModel } from './Content';
 import { ReviewModel } from './Review';
 import { ConfigurationModel } from './Configuration';
 import { PromptTemplateModel } from './PromptTemplate';
+import { CategoryModel } from './Category';
+import { TagModel } from './Tag';
 
 export interface Models {
   account: AccountModel;
@@ -25,6 +29,8 @@ export interface Models {
   review: ReviewModel;
   configuration: ConfigurationModel;
   promptTemplate: PromptTemplateModel;
+  category: CategoryModel;
+  tag: TagModel;
 }
 
 export function createModels(database: Database): Models {
@@ -36,5 +42,7 @@ export function createModels(database: Database): Models {
     review: new ReviewModel(database),
     configuration: new ConfigurationModel(database),
     promptTemplate: new PromptTemplateModel(database),
+    category: new CategoryModel(database),
+    tag: new TagModel(database),
   };
 }

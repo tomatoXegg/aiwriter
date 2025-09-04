@@ -23,6 +23,22 @@ export interface Material extends BaseModel {
   type: 'text' | 'file' | 'link' | 'image';
   file_path?: string;
   account_id?: string;
+  category_id?: string;
+  file_size?: number;
+  word_count?: number;
+  updated_at?: string;
+}
+
+export interface Category extends BaseModel {
+  name: string;
+  description: string;
+  color: string;
+}
+
+export interface Tag extends BaseModel {
+  name: string;
+  color: string;
+  usage_count: number;
 }
 
 export interface Topic extends BaseModel {
@@ -138,6 +154,31 @@ export interface CreateMaterialDto {
   type?: 'text' | 'file' | 'link' | 'image';
   file_path?: string;
   account_id?: string;
+  category_id?: string;
+  file_size?: number;
+  word_count?: number;
+}
+
+export interface CreateCategoryDto {
+  name: string;
+  description?: string;
+  color?: string;
+}
+
+export interface UpdateCategoryDto {
+  name?: string;
+  description?: string;
+  color?: string;
+}
+
+export interface CreateTagDto {
+  name: string;
+  color?: string;
+}
+
+export interface UpdateTagDto {
+  name?: string;
+  color?: string;
 }
 
 export interface CreateTopicDto {

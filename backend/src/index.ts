@@ -16,9 +16,16 @@ import { authenticate, optionalAuth } from './middleware/auth';
 import accountsRouter from './routes/accounts';
 import reviewsRouter from './routes/reviews';
 import aiRouter from './routes/ai';
+import createMaterialsRouter from './routes/materials';
 
 // Import database configuration
 import databaseConfig from './config/database';
+import { createModels } from './database/models';
+import { FileUploadService } from './services';
+
+// Initialize models and services
+const models = createModels(databaseConfig.getDatabase());
+const fileUploadService = new FileUploadService();
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -72,6 +79,7 @@ app.get('/api', (req, res) => {
     description: 'AI-powered content generation platform',
     endpoints: {
       accounts: '/api/accounts',
+      materials: '/api/materials',
       reviews: '/api/reviews',
       ai: '/api/ai',
       health: '/health',
@@ -79,6 +87,9 @@ app.get('/api', (req, res) => {
     },
     features: [
       'Account management',
+      'Material management with file upload',
+      'Category and tag system',
+      'Advanced search and filtering',
       'AI-powered topic generation',
       'AI-powered content creation',
       'Content quality review',
@@ -90,6 +101,7 @@ app.get('/api', (req, res) => {
 
 // API routes with authentication
 app.use('/api/accounts', optionalAuth, accountsRouter);
+app.use('/api/materials', authenticate, createMaterialsRouter(models, fileUploadService));
 app.use('/api/reviews', authenticate, reviewsRouter);
 app.use('/api/ai', authenticate, aiRouter);
 
